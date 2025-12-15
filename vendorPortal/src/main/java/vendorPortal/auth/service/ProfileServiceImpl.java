@@ -1,32 +1,57 @@
 package vendorPortal.auth.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import vendorPortal.auth.Repository.UserRepository;
 import vendorPortal.auth.entity.UserEntity;
 import vendorPortal.auth.io.ProfileRequest;
 import vendorPortal.auth.io.ProfileResponse;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
+
 public class ProfileServiceImpl implements ProfileService{
 
-    private  UserRepository userRespository;
+    private final UserRepository userRespository;
 
 
     @Override
     public ProfileResponse createProfile(ProfileRequest request) {
          UserEntity newProfile = convertToUserEntity(request);
 
-         userRespository.save(newProfile);
-        return convertToProfileResponse(newProfile);
+         if(!userRespository.existsByEmail(request.getEmail())) {
+            newProfile = userRespository.save(newProfile);
+             return convertToProfileResponse(newProfile);
+         }
+       throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already exists");
+
     }
 
     private ProfileResponse convertToProfileResponse(UserEntity newProfile) {
+        return ProfileResponse.builder()
+                .name(newProfile.getName())
+                .email(newProfile.getEmail())
+                .userId(newProfile.getUserId())
+                .isAccountVerified(newProfile.getIsAccountVerified())
+                .build();
     }
 
     private UserEntity convertToUserEntity(ProfileRequest request) {
-//        UserEntity.
-        return  null;
+      return UserEntity.builder()
+                .email(request.getEmail())
+                .userId(UUID.randomUUID().toString())
+                .name(request.getName())
+                .password(request.getPassword())
+                .isAccountVerified(false)
+                .resetOtpExpireAt(0L)
+                .verifyOtp(null)
+                .verifyOtpExpireAt(0L)
+                .resetOtp(null)
+                .build();
+
     }
 }
