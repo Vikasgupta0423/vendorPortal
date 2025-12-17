@@ -6,4 +6,6 @@ import vendorPortal.auth.io.ProfileResponse;
 public interface ProfileService {
 
    ProfileResponse createProfile(ProfileRequest request);
+
+   ProfileResponse getProfile(String email);
 }

@@ -8,6 +8,9 @@ public class VendorPortalApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(VendorPortalApplication.class, args);
+        System.out.println("*****************************************");
+        System.out.println("************Vendor Portal Start**********");
+        System.out.println("*****************************************");
 	}
 
 }

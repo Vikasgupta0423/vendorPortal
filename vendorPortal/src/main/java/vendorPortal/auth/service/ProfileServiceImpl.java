@@ -2,6 +2,9 @@ package vendorPortal.auth.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.config.authentication.PasswordEncoderParser;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import vendorPortal.auth.Repository.UserRepository;
@@ -18,6 +21,7 @@ public class ProfileServiceImpl implements ProfileService{
 
     private final UserRepository userRespository;
 
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public ProfileResponse createProfile(ProfileRequest request) {
@@ -45,7 +49,7 @@ public class ProfileServiceImpl implements ProfileService{
                 .email(request.getEmail())
                 .userId(UUID.randomUUID().toString())
                 .name(request.getName())
-                .password(request.getPassword())
+                .password(passwordEncoder.encode(request.getPassword()))
                 .isAccountVerified(false)
                 .resetOtpExpireAt(0L)
                 .verifyOtp(null)
@@ -53,5 +57,13 @@ public class ProfileServiceImpl implements ProfileService{
                 .resetOtp(null)
                 .build();
 
+    }
+
+
+    @Override
+    public ProfileResponse getProfile(String email) {
+        UserEntity existingUser = userRespository.findByEmail(email)
+                .orElseThrow(()-> new UsernameNotFoundException("User not found: " + email));
+        return convertToProfileResponse(existingUser);
     }
 }

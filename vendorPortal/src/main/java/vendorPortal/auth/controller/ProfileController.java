@@ -2,16 +2,13 @@ package vendorPortal.auth.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.CurrentSecurityContext;
+import org.springframework.web.bind.annotation.*;
 import vendorPortal.auth.io.ProfileRequest;
 import vendorPortal.auth.io.ProfileResponse;
 import vendorPortal.auth.service.ProfileService;
 
 @RestController
-@RequestMapping("/api/v1.0")
 public class ProfileController {
 
     @Autowired
@@ -21,5 +18,11 @@ public class ProfileController {
     public ProfileResponse register(@Valid @RequestBody ProfileRequest request){
         ProfileResponse response = profileService.createProfile(request);
         return response;
+    }
+
+    @GetMapping("/profile")
+    public ProfileResponse getProfile(@CurrentSecurityContext(expression = "authentication?.name") String email){
+
+        return profileService.getProfile(email);
     }
 }
